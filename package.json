@@ -1,0 +1,17 @@
+{
+  "name": "azbouki-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+  },
+  "author": "Martin Lazarov",
+  "license": "ISC",
+  "dependencies": {
+    "ncp": "^2.0.0"
+  },
+  "bin": {
+    "azb": "./bin/generate.js"
+  },
+  "preferGlobal": true
+}
