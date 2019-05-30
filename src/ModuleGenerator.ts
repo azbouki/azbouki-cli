@@ -27,7 +27,7 @@ export default class ModuleGenerator {
 
         sources.forEach(source => {
 
-            fs.readFile(source.path, 'utf8', function (err:any, tpl:string) {// TODO: Update template!
+            fs.readFile(source.path, 'utf8', function (err:any, tpl:string) {
 
                 if (err) {
                     console.error(err);
@@ -46,6 +46,29 @@ export default class ModuleGenerator {
             });
 
         });
+
+        // Adds module to routes
+        const routesIndex = path.join('./routes', 'index.js');
+        fs.readFile(routesIndex, 'utf8', function (err:any, content:string) {
+
+            if (err) {
+                console.error(err);
+            }
+
+            const str = `MODULES \n const ${moduleName.toLowerCase()} = require(pathServer + '${moduleName}')(); \n router.use(config.apiPrefix + '/${moduleName.toLowerCase()}', ${moduleName.toLowerCase()});\n`;
+
+            const newContent = content.replace(/MODULES/g, str);
+
+            fs.writeFile(routesIndex, newContent, function(err) {
+                if(err) {
+                    return console.log(err);
+                }
+
+                console.log(`routes added for module ${moduleName}`);
+            });
+
+        });
+
     }
 
     public generate(item: string, itemName: string) {
