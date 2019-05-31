@@ -7,6 +7,10 @@ export default class ProjectCreator {
     }
 
     public createProject(projectName: string) {
+        if (!projectName) {
+            console.error("Please specify project name!");
+            return;
+        }
         console.log(`Creating project ${projectName} from Project Creator`);
         Git.Clone("https://github.com/tdermendjiev/azb-template-js.git", `./${projectName}`)
             .then(function(repo:any) {
