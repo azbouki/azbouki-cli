@@ -1,7 +1,7 @@
 const mysql = require('../../lib/mysqlConnection/MysqlConnection');
 const HotelRepository = new (require('./HotelRepository'))(mysql);
 
-module.exports = function HotelService() {
+module.exports = function PlaceholderService() {
 
     function getHotelsByOfferId(offerId) {
         return HotelRepository.getListByOfferId(offerId).then(results => {

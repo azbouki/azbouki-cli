@@ -1,10 +1,9 @@
 const mysql = require('../../lib/mysqlConnection/MysqlConnection');
-// config = require('../../config/config');
 
 module.exports = function () {
 
-    const HotelRepository = new (require('./HotelRepository'))(mysql),
-        HotelController = new (require('./HotelController'))(HotelRepository);
+    const PlaceholderRepository = new (require('./PlaceholderRepository'))(mysql),
+        PlaceholderController = new (require('./PlaceholderController'))(PlaceholderRepository);
 
-    return require('./HotelRoutes')(HotelController);
+    return require('./PlaceholderRoutes')(PlaceholderController);
 };
