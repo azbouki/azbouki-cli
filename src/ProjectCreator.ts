@@ -1,4 +1,6 @@
-const Git = require("nodegit");
+const path = require('path');
+var AdmZip = require('adm-zip');
+const fs = require('fs');
 
 export default class ProjectCreator {
 
@@ -11,11 +13,23 @@ export default class ProjectCreator {
             console.error("Please specify project name!");
             return;
         }
-        console.log(`Creating project ${projectName} from Project Creator`);
-        Git.Clone("https://github.com/tdermendjiev/azb-template-js.git", `./${projectName}`)
-            .then(function(repo:any) {
-                // Use a known commit sha from this repository.
-                console.log(repo);
-            })
+
+        if (fs.existsSync(`./${projectName}`)) {
+            console.error(`Directory ${projectName} already exists!`);
+            return;
+        }
+
+        const tplName = 'azb-template-js-1.0.0';
+
+        const tplPath = path.join(__dirname, '../templates/' + `${tplName}.zip`);
+
+        var zip = new AdmZip(tplPath);
+
+        zip.extractAllTo(`./`, false);
+
+        fs.renameSync(`./${tplName}`, `./${projectName}`);
+
+        console.log(`Successfully created project ${projectName}!`)
+
     }
 }
