@@ -1,22 +1,31 @@
 import * as fs from 'fs';
 import * as path from 'path'
+var ncp = require('ncp').ncp;
 
 export default class ModuleGenerator {
+
+    sourceDir: string;
 
     constructor() {
         //option variables
         this.generate = this.generate.bind(this);
+        this.sourceDir = path.join(__dirname, '../source');
     }
 
     generateModule(moduleName: string) {
         console.log(`Generating module ${moduleName}...`);
-        const sourceDir = path.join(__dirname, '../source');
+
+        this.copyModuleTemplate(moduleName);
+        this.addModuleToRoutes(moduleName, false);
+    }
+
+    copyModuleTemplate(moduleName: string) {
 
         const sources = [
-            { path: path.join(sourceDir, 'Controller.js'), name: `${moduleName}Controller.js`},
-            { path: path.join(sourceDir, 'index.js'), name: `index.js`},
-            { path: path.join(sourceDir, 'Repository.js'), name: `${moduleName}Repository.js`},
-            { path: path.join(sourceDir, 'Routes.js'), name: `${moduleName}Routes.js`},
+            { path: path.join(this.sourceDir, 'Controller.js'), name: `${moduleName}Controller.js`},
+            { path: path.join(this.sourceDir, 'index.js'), name: `index.js`},
+            { path: path.join(this.sourceDir, 'Repository.js'), name: `${moduleName}Repository.js`},
+            { path: path.join(this.sourceDir, 'Routes.js'), name: `${moduleName}Routes.js`},
         ];
 
         const newDirPath = path.join('./', moduleName);
@@ -46,8 +55,10 @@ export default class ModuleGenerator {
             });
 
         });
+    }
 
-        // Adds module to routes
+    addModuleToRoutes(moduleName: string, withApp: boolean) {
+
         const routesIndex = path.join('./routes', 'index.js');
         fs.readFile(routesIndex, 'utf8', function (err:any, content:string) {
 
@@ -55,7 +66,7 @@ export default class ModuleGenerator {
                 console.error(err);
             }
 
-            const str = `MODULES \n const ${moduleName.toLowerCase()} = require(pathServer + '${moduleName}')(); \n router.use(config.apiPrefix + '/${moduleName.toLowerCase()}', ${moduleName.toLowerCase()});\n`;
+            const str = `MODULES \n const ${moduleName.toLowerCase()} = require(pathServer + '${moduleName}')(${withApp ? 'app' : ''}); \n router.use(config.apiPrefix + '/${moduleName.toLowerCase()}', ${moduleName.toLowerCase()});\n`;
 
             const newContent = content.replace(/MODULES/g, str);
 
@@ -71,9 +82,35 @@ export default class ModuleGenerator {
 
     }
 
+    copyAuthModuleTemplate() {
+        const moduleName = "User";
+        const newDirPath = path.join('./', moduleName);
+
+        if (!fs.existsSync(newDirPath)){
+            fs.mkdirSync(newDirPath);
+        }
+
+        ncp(path.join(this.sourceDir, "User"), newDirPath, function (err: any) {
+            if (err) {
+              return console.error(err);
+            }
+            console.log('done!');
+           });
+    }
+
+    generateAuth() {
+        console.log("Generating basic auth...");
+
+        this.copyAuthModuleTemplate();
+        this.addModuleToRoutes("User", true);
+
+    }
+
     public generate(item: string, itemName: string) {
         if (item === "module") {
             this.generateModule(itemName);
+        } else if (item === "auth") {
+            this.generateAuth();
         }
     }
 }
